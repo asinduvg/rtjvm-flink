@@ -1,5 +1,8 @@
 package part2datastreams
 
+import org.apache.flink.api.common.serialization.SimpleStringEncoder
+import org.apache.flink.core.fs.Path
+import org.apache.flink.streaming.api.functions.sink.filesystem.StreamingFileSink
 import org.apache.flink.streaming.api.scala._
 
 object EssentialStreams {
@@ -47,12 +50,54 @@ object EssentialStreams {
     finalData.setParallelism(3)
 
     env.execute()
+  }
+
+  /**
+   *
+   * Exercise: FizzBuzz on Flink
+   *  - take a stream of 100 natural numbers
+   *  - for every number
+   *    - if n % 3 == 0 then return "fizz"
+   *    - if n % 5 == 0 => "buzz"
+   *    - if both => "fizzbuzz"
+   *
+   *  - print the numbers for which you said "fizzbuzz" to a file
+   */
+
+  def fizzBuzz() = {
+    val env: StreamExecutionEnvironment = StreamExecutionEnvironment.getExecutionEnvironment
+    val simpleNumberStream: DataStream[Int] = env.fromCollection(1 to 100)
+
+    val fb = simpleNumberStream
+      .map(n => {
+        if ((n % 3 == 0) && (n % 5 == 0)) (n, "fizzbuzz")
+        else if (n % 3 == 0) (n, "fizz")
+        else if (n % 5 == 0) (n, "buzz")
+        else (n, "")
+      })
+      .filter(_._2 == "fizzbuzz")
+      .map(_._1)
+
+    // alternative to
+    // fb.writeAsText("output/fizzbuzz.txt").setParallelism(1)
+
+    // add a SINK
+    fb.addSink(
+      StreamingFileSink
+        .forRowFormat(
+          new Path("output/streaming_sink"),
+          new SimpleStringEncoder[Int]("UTF-8")
+        )
+        .build()
+    ).setParallelism(1)
+
+    env.execute()
 
   }
 
 
   def main(args: Array[String]): Unit = {
-    demoTransformations()
+    fizzBuzz()
   }
 
 }
