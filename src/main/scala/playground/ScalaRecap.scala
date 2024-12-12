@@ -6,7 +6,7 @@ import scala.util.{Failure, Success, Try}
 
 object ScalaRecap {
 
-  // value
+  // event
   val aBoolean: Boolean = false
   var aVariable: Int = 56
   aVariable += 1

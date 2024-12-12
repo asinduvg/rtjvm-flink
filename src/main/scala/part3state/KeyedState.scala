@@ -50,9 +50,9 @@ object KeyedState {
     val numEventsPerUserStream = eventsPerUser.process(
       new KeyedProcessFunction[String, ShoppingCartEvent, String] {
 
-        // can call .value to get current state
+        // can call .event to get current state
         // can call .update(newValue) to overwrite
-        var stateCounter: ValueState[Long] = _ // a value state per key=userId
+        var stateCounter: ValueState[Long] = _ // a event state per key=userId
 
         override def open(parameters: Configuration): Unit =
           // Initialize all states
@@ -81,7 +81,7 @@ object KeyedState {
         // create state here
         /*
           Capabilities
-            - add(value)
+            - add(event)
             - addAll(list)
             - update(new list) -> overwriting
             - get

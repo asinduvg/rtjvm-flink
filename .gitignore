@@ -160,3 +160,4 @@ project/plugins/project/
 .idea
 .metals
 .vscode
+.DS_Store
